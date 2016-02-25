@@ -40,7 +40,7 @@ body {
          padding-left: 1rem;
          padding-right: 1rem;
      }
-      
+
      .column.full { width: 100%; }
      .column.two-thirds { width: 66.7%; }
      .column.half { width: 50%; }
@@ -53,3 +53,12 @@ body {
  	html { font-size: 120%; }
    /* Style information will go here */
  }
+.clearfix::before,
+.clearfix::after {
+   content: " ";
+   display: table;
+}
+
+.clearfix::after {
+   clear: both;
+}
