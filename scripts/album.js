@@ -23,13 +23,14 @@ var albumKaldor = {
          '<tr class="album-view-song-item">'
         + '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
         + '  <td class="song-item-title">' + songName + '</td>'
-        + '  <td class="song-item-duration">' + songLength + '</td>'
+        + '  <td class="song-item-duration">' + filterTimeCode(songLength) + '</td>'
         + '</tr>'
   ;
   
        var $row = $(template);
 
        var clickHandler = function() {
+
        var songNumber = parseInt($(this).attr('data-song-number'));
 
           if (currentlyPlayingSongNumber !== null) {
@@ -42,9 +43,9 @@ var albumKaldor = {
          
          if (currentlyPlayingSongNumber !== songNumber) {
              // Switch from Play -> Pause button to indicate new song is playing.
-             $(this).html(pauseButtonTemplate);
              setSong(songNumber);
              currentSoundFile.play();
+             $(this).html(pauseButtonTemplate);
              currentSongFromAlbum = currentAlbum.songs[songNumber - 1];
              updateSeekBarWhileSongPlays();
              updatePlayerBarSong();
@@ -119,7 +120,7 @@ var albumKaldor = {
     if (currentSoundFile) {
         currentSoundFile.setTime(time);
     }
-  }
+  };
 
   var setVolume = function(volume) {
      if (currentSoundFile) {
@@ -149,12 +150,42 @@ var albumKaldor = {
       }
   };
 
+  var setCurrentTimeInPlayerBar = function (currentTime) {
+      var $currentTimeElement = $('.seek-control .current-time');
+      $currentTimeElement.text(currentTime);
+  };
+
+  var setTotalTimeInPlayerBar = function(totalTime) {
+      var $totalTimeElement = $('.seek-control .total-time');
+      $totalTimeElement.text(totalTime);
+  };
+
+  var filterTimeCode = function(timeInSeconds) {
+      var seconds = Number.parseFloat(timeInSeconds);
+      var wholeSeconds = Math.floor(seconds);
+      var minutes = Math.floor(wholeSeconds / 60);
+      var remainingSeconds = wholeSeconds % 60;
+
+      var output = minutes + ':';
+      if (remainingSeconds <10) {
+          output += '0';
+      }
+
+      output += remainingSeconds;
+
+      return output;
+  };
+
   var updateSeekBarWhileSongPlays = function() {
      if (currentSoundFile) {
          currentSoundFile.bind('timeupdate', function(event) {
-             var seekBarFillRatio = this.getTime() / this.getDuration();
+             //var seekBarFillRatio = this.getTime() / this.getDuration();
+             var currentTime = this.getTime();
+             var songLength = this.getDuration();
+             var seekBarFillRatio = currentTime / songLength;
              var $seekBar = $('.seek-control .seek-bar');
              updateSeekPercentage($seekBar, seekBarFillRatio);
+             setCurrentTimeInPlayerBar(filterTimeCode(currentTime));
          });
      }
  };
@@ -215,6 +246,7 @@ var albumKaldor = {
      $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + " - " + currentAlbum.artist);
      //$('.currently-playing .total-time').text(currentSongFromAlbum.duration);
      $('.main-controls .play-pause').html(playerBarPauseButton);
+     setTotalTimeInPlayerBar(filterTimeCode(currentSongFromAlbum.length));
  };
 
  var trackIndex = function(album, song) {
@@ -310,6 +342,8 @@ var albumKaldor = {
  
  var $previousButton = $('.main-controls .previous');
  var $nextButton = $('.main-controls .next');
+ var $playPauseButton = $('.main-controls .play-pause');
+
   
   $(document).ready(function() {
       setCurrentAlbum(albumPicasso);
@@ -318,7 +352,7 @@ var albumKaldor = {
       $nextButton.click(nextSong);
       $playPauseButton.click(togglePlayFromPlayerbar);
 
-    var albums = [albumMarconi, albumKaldor, albumPicasso];
+/*    var albums = [albumMarconi, albumKaldor, albumPicasso];
      var albumArt = document.getElementsByClassName('album-cover-art')[0];
      var i = 0;
  
@@ -330,7 +364,7 @@ var albumKaldor = {
          else{
              i++;
          }
-     }); 
+     }); */
  });
 
   
